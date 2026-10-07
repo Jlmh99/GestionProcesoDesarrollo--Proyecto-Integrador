@@ -73,7 +73,8 @@ GitHub Actions
                 │
                 ├── Pull Docker Image
                 ├── Stop old container
-                └── Start new container
+                ├── Start new container
+                └── Verificar con curl
                          │
                          ▼
                      Flask API
@@ -129,7 +130,7 @@ Las respuestas de error utilizan el mismo formato general:
 
 ```bash
 git clone <URL_DEL_REPOSITORIO>
-cd practica-webapp
+cd <NOMBRE_DEL_REPOSITORIO>
 ```
 
 ### 4.2 Crear el entorno virtual
@@ -207,6 +208,8 @@ docker run -d \
   practica-webapp:latest
 ```
 
+En local se utiliza el puerto `8080` del equipo para evitar conflictos con otros servicios que ocupen el puerto `80`. En el servidor EC2, el pipeline publica la API directamente en el puerto `80`.
+
 La API estará disponible en:
 
 ```text
@@ -272,11 +275,15 @@ El despliegue utiliza una instancia **Amazon EC2 con Ubuntu**, con Docker instal
 | SSH | TCP | 22 | Conexión administrativa y despliegue mediante GitHub Actions. |
 | HTTP | TCP | 80 | Acceso público a la API REST. |
 
-El puerto `6061` corresponde al servidor TCP utilizado por la aplicación. El acceso público principal requerido para la API REST se realiza mediante HTTP en el puerto `80`.
+El puerto `22` está abierto a `0.0.0.0/0` porque los runners de GitHub Actions no utilizan direcciones IP fijas. El acceso queda protegido porque la instancia solo acepta autenticación mediante la llave privada `.pem`, no mediante contraseña.
+
+El puerto `6061` corresponde al servidor TCP utilizado por la aplicación dentro del contenedor. En el despliegue automatizado en EC2 este puerto no se publica; el acceso público principal requerido para la API REST se realiza mediante HTTP en el puerto `80`.
 
 ---
 
 ## 6. Flujo del pipeline
+
+El job de pruebas se ejecuta tanto en un `push` como en un `pull request` hacia `main`. Los jobs de construcción y publicación de la imagen y de despliegue se ejecutan únicamente en un `push` a `main`, por lo que un `pull request` solo valida las pruebas y la cobertura.
 
 ### 6.1 Pruebas y cobertura
 
@@ -342,6 +349,7 @@ El proceso:
 4. Elimina el contenedor anterior.
 5. Ejecuta el nuevo contenedor.
 6. Expone la API mediante el puerto 80.
+7. Espera unos segundos y verifica con `curl` que la API responde; si no responde, el job falla.
 
 ```text
 Docker Hub
@@ -352,7 +360,8 @@ AWS EC2
     │
     ├── Detener contenedor anterior
     ├── Eliminar contenedor anterior
-    └── Iniciar nuevo contenedor
+    ├── Iniciar nuevo contenedor
+    └── Verificar respuesta con curl
               │
               ▼
         Flask API :80
@@ -380,7 +389,7 @@ curl http://<IP_EC2>/api/productos
 
 ### Demostración del CI/CD
 
-Para comprobar el funcionamiento del pipeline se puede realizar una modificación sencilla en el proyecto.
+Para comprobar el funcionamiento del pipeline se realiza una modificación sencilla en el proyecto: cambiar el mensaje que devuelve la ruta principal `/`, definido en el archivo `app/__init__.py` (por ejemplo, el texto `"WebApp API funcionando"`).
 
 Posteriormente:
 
@@ -408,13 +417,13 @@ GitHub Actions
       API actualizada
 ```
 
-Finalmente, se consulta nuevamente:
+Finalmente, se consulta la ruta principal:
 
-```text
-http://<IP_EC2>/api/productos
+```bash
+curl http://<IP_EC2>/
 ```
 
-para comprobar que la versión actualizada de la aplicación se encuentra funcionando en EC2.
+para comprobar que el mensaje modificado se muestra en la versión actualizada de la aplicación que se encuentra funcionando en EC2.
 
 ---
 
@@ -486,7 +495,7 @@ Para mantener los datos independientemente del ciclo de vida del contenedor, se 
 ## 11. Estructura principal del proyecto
 
 ```text
-practica-webapp/
+<repositorio>/
 │
 ├── .github/
 │   └── workflows/
@@ -501,14 +510,13 @@ practica-webapp/
 │       └── swagger.json
 │
 ├── test/
-│   └── test_endpoints.py
-│
-├── instance/
-│   └── webapp.db
+│   ├── test_endpoints.py
+│   └── pruebas unitarias curl.txt
 │
 ├── .dockerignore
 ├── .gitignore
 ├── Dockerfile
+├── pytest.ini
 ├── requirements.txt
 ├── run.py
 ├── socket_server.py
