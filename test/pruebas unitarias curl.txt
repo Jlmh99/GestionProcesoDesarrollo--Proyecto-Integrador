@@ -1,0 +1,60 @@
+1. Producto sin nombre — HTTP 400
+
+Ejecuta:
+
+curl -i -X POST http://127.0.0.1:80/api/productos \
+  -H "Content-Type: application/json" \
+  -d '{"precio":300,"categoria_id":1}'
+
+Deberías obtener algo parecido a:
+
+HTTP/1.1 400 BAD REQUEST
+...
+{
+  "data": {
+    "error": "..."
+  },
+  "statusCode": 400
+}
+
+📸 Esta es una buena captura para la sección "Producto sin nombre".
+
+2. Precio negativo — HTTP 400
+
+Ejecuta:
+
+curl -i -X POST http://127.0.0.1:80/api/productos \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"Producto invalido","precio":-100,"categoria_id":1}'
+
+Deberías obtener:
+
+HTTP/1.1 400 BAD REQUEST
+...
+{
+  "data": {
+    "error": "..."
+  },
+  "statusCode": 400
+}
+
+📸 Toma captura de esta respuesta.
+
+3. Método HTTP no permitido — HTTP 405
+
+Para esta prueba:
+
+curl -i -X PATCH http://127.0.0.1:80/api/productos
+
+Deberías obtener:
+
+HTTP/1.1 405 METHOD NOT ALLOWED
+...
+{
+  "data": {
+    "error": "..."
+  },
+  "statusCode": 405
+}
+
+📸 Esta captura te sirve para la sección "Método HTTP no permitido".

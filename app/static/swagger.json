@@ -1,0 +1,299 @@
+
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "WebApp API - Practica DevOps",
+    "description": "API REST de productos y categorias con SQLite.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Servidor local de desarrollo"
+    }
+  ],
+  "paths": {
+    "/api/productos": {
+      "get": {
+        "summary": "Listar productos",
+        "responses": {
+          "200": {
+            "description": "Lista de productos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaProductos"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear producto",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductoEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Producto creado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaProducto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos"
+          }
+        }
+      }
+    },
+    "/api/productos/{producto_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ProductoId"
+        }
+      ],
+      "get": {
+        "summary": "Obtener producto por ID",
+        "responses": {
+          "200": {
+            "description": "Producto encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespuestaProducto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Producto no encontrado"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar producto",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductoEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Producto actualizado"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "404": {
+            "description": "Producto no encontrado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar producto",
+        "responses": {
+          "200": {
+            "description": "Producto eliminado"
+          },
+          "404": {
+            "description": "Producto no encontrado"
+          }
+        }
+      }
+    },
+    "/api/categorias": {
+      "get": {
+        "summary": "Listar categorías",
+        "responses": {
+          "200": {
+            "description": "Lista de categorías"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear categoría",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoriaEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Categoría creada"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "409": {
+            "description": "Categoría duplicada"
+          }
+        }
+      }
+    },
+    "/api/productos/categoria/{categoria_id}": {
+      "parameters": [
+        {
+          "name": "categoria_id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      ],
+      "get": {
+        "summary": "Listar productos por categoría",
+        "responses": {
+          "200": {
+            "description": "Productos de la categoría"
+          },
+          "404": {
+            "description": "Categoría no encontrada"
+          }
+        }
+      }
+    },
+    "/api/backup": {
+      "post": {
+        "summary": "Crear respaldo de SQLite",
+        "responses": {
+          "201": {
+            "description": "Respaldo creado"
+          },
+          "500": {
+            "description": "Error al crear el respaldo"
+          }
+        }
+      }
+    },
+    "/api/base-datos": {
+      "delete": {
+        "summary": "Vaciar productos y categorías",
+        "responses": {
+          "200": {
+            "description": "Base de datos vaciada"
+          },
+          "500": {
+            "description": "Error al vaciar la base de datos"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "ProductoId": {
+        "name": "producto_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "schemas": {
+      "CategoriaEntrada": {
+        "type": "object",
+        "required": ["nombre"],
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Electrónica"
+          }
+        }
+      },
+      "ProductoEntrada": {
+        "type": "object",
+        "required": ["nombre", "precio", "categoria_id"],
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 120,
+            "example": "Teclado"
+          },
+          "precio": {
+            "type": "number",
+            "minimum": 0,
+            "example": 450.5
+          },
+          "categoria_id": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          }
+        }
+      },
+      "RespuestaProducto": {
+        "type": "object",
+        "required": ["statusCode", "data"],
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "example": 200
+          },
+          "data": {
+            "$ref": "#/components/schemas/Producto"
+          }
+        }
+      },
+      "RespuestaProductos": {
+        "type": "object",
+        "required": ["statusCode", "data"],
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "example": 200
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Producto"
+            }
+          }
+        }
+      },
+      "Producto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "precio": {
+            "type": "number"
+          },
+          "categoria_id": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}
