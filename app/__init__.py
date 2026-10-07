@@ -51,7 +51,7 @@ def create_app(test_config=None):
         return jsonify({
             "statusCode": 200,
             "data": {
-                "mensaje": "WebApp API funcionando",
+                "mensaje": "WebApp API funcionando - Demo CI/CD v2",
                 "documentacion": "/swagger"
             }
         }), 200
