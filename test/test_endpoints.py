@@ -523,4 +523,4 @@ def test_get_health(client):
     data = response.get_json()
 
     assert data["statusCode"] == 200
-    assert data["data"]["status"] == "ok"
+    assert data["data"]["status"] == "ok uteq"
