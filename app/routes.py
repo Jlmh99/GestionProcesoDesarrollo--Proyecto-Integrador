@@ -238,4 +238,4 @@ def vaciar_base_datos():
 # 11. GET /api/health
 @api.get("/health")
 def health_check():
-    return json_response(200, {"status": "ok"})
+    return json_response(200, {"status": "ok uteq"})
