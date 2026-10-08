@@ -234,3 +234,8 @@ def vaciar_base_datos():
     return json_response(200, {
         "mensaje": "La base de datos fue vaciada correctamente."
     })
+
+# 11. GET /api/health
+@api.get("/health")
+def health_check():
+    return json_response(200, {"status": "ok"})

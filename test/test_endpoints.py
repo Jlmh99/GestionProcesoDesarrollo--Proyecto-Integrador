@@ -509,3 +509,18 @@ def test_metodo_http_no_permitido(client):
     data = response.get_json()
 
     assert data["statusCode"] == 405
+
+
+# ============================================================
+# 25. GET /api/health
+# ============================================================
+
+def test_get_health(client):
+    response = client.get("/api/health")
+
+    assert response.status_code == 200
+
+    data = response.get_json()
+
+    assert data["statusCode"] == 200
+    assert data["data"]["status"] == "ok"

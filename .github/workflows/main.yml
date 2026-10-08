@@ -80,4 +80,4 @@ jobs:
               ${{ secrets.DOCKERHUB_USERNAME }}/practica-webapp:latest
             docker image prune -f
             sleep 5
-            curl -fsS http://localhost/ > /dev/null
+            curl -fsS http://localhost/api/health > /dev/null
