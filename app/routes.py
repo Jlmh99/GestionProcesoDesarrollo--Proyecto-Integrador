@@ -232,7 +232,7 @@ def vaciar_base_datos():
         return json_error(500, "No se pudo vaciar la base de datos.")
 
     return json_response(200, {
-        "mensaje": "La base de datos fue vaciada correctamente."
+        "mensaje": "La base de datos fue vaciada correctamente. rete"
     })
 
 # 11. GET /api/health
